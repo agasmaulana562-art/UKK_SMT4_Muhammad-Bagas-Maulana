@@ -21,6 +21,7 @@ type User = {
   email: string
   role: string
   createdAt: string
+  accountCode: string
 }
 
 type Pagination = {
@@ -116,6 +117,7 @@ export default function UserManagementPage() {
         </TableCaption>
         <TableHeader>
           <TableRow>
+            <TableHead>Nomor akun</TableHead>
             <TableHead>Nama lengkap</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
@@ -126,14 +128,15 @@ export default function UserManagementPage() {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center">Memuat user...</TableCell>
+              <TableCell colSpan={6} className="text-center">Memuat user...</TableCell>
             </TableRow>
           ) : users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center">Belum ada user.</TableCell>
+              <TableCell colSpan={6} className="text-center">Belum ada user.</TableCell>
             </TableRow>
           ) : users.map((user) => (
             <TableRow key={user.id}>
+              <TableCell className="font-mono">{user.accountCode}</TableCell>
               <TableCell className="font-medium">{user.fullname}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell className="capitalize">{user.role}</TableCell>

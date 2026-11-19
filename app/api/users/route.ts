@@ -16,6 +16,19 @@ function isDuplicateEmail(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && error.code === "P2002"
 }
 
+function getRolePrefix(role: string) {
+  const normalizedRole = role.toLowerCase()
+  return normalizedRole === "admin"
+    ? "ADM"
+    : normalizedRole === "user"
+      ? "USR"
+      : normalizedRole.toUpperCase().slice(0, 3)
+}
+
+function formatAccountCode(role: string, number: number) {
+  return `${getRolePrefix(role)}${String(number).padStart(7, "0")}`
+}
+
 async function getAuthorizationError() {
   const user = await getAuthenticatedUser()
   if (!user) return NextResponse.json({ error: "Silakan login untuk melanjutkan." }, { status: 401 })
@@ -45,8 +58,32 @@ export async function GET(request: Request) {
       take: pageSize,
       select: userFields,
     })
+    const usersById = await prisma.user.findMany({
+      orderBy: { id: "asc" },
+      select: { id: true, role: true },
+    })
+    const roleCounts = new Map<string, number>()
+    const accountCodes = new Map<number, string>()
+
+    for (const user of usersById) {
+      const role = user.role.toLowerCase()
+      const roleNumber = (roleCounts.get(role) ?? 0) + 1
+      roleCounts.set(role, roleNumber)
+      accountCodes.set(user.id, formatAccountCode(role, roleNumber))
+    }
+
     return NextResponse.json({
-      users,
+      users: users.map((user) => {
+        const accountCode = accountCodes.get(user.id)
+        if (!accountCode) throw new Error(`Account code missing for user ${user.id}.`)
+        return { ...user, accountCode }
+      }),
+      nextAccountCodes: Object.fromEntries(
+        ["admin", "staff"].map((role) => [
+          role,
+          formatAccountCode(role, (roleCounts.get(role) ?? 0) + 1),
+        ]),
+      ),
       pagination: { page, pageSize, totalUsers, totalPages },
     })
   } catch (error) {

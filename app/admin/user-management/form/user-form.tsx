@@ -21,7 +21,8 @@ type UserFormProps = {
 export function UserForm({ userId }: UserFormProps) {
   const router = useRouter()
   const [user, setUser] = useState<UserFormUser | null>(null)
-  const [isLoading, setIsLoading] = useState(Boolean(userId))
+  const [nextAccountCodes, setNextAccountCodes] = useState<Record<string, string>>({})
+  const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState("")
   const [fullname, setFullname] = useState("")
@@ -30,20 +31,30 @@ export function UserForm({ userId }: UserFormProps) {
   const [role, setRole] = useState("staff")
 
   useEffect(() => {
-    if (!userId) return
-
     let isActive = true
-    async function loadUser() {
-      try {
-        const response = await fetch(`/api/users/${userId}`)
-        const result = await response.json()
-        if (!response.ok) throw new Error(result.error ?? "Gagal memuat user.")
 
-        if (isActive) {
+    async function loadFormData() {
+      setIsLoading(true)
+      try {
+        const response = await fetch(userId
+          ? `/api/users/${userId}`
+          : "/api/users?page=1&pageSize=1")
+        const result = await response.json()
+        if (!response.ok) {
+          throw new Error(result.error ?? "Gagal memuat user.")
+        }
+
+        if (userId && isActive) {
           setUser(result.user)
           setFullname(result.user.fullname)
           setEmail(result.user.email)
           setRole(result.user.role)
+        } else if (!userId && isActive) {
+          const codes = result.nextAccountCodes
+          if (!codes || typeof codes.admin !== "string" || typeof codes.staff !== "string") {
+            throw new Error("Gagal memuat nomor akun otomatis.")
+          }
+          setNextAccountCodes(codes)
         }
       } catch (loadError) {
         if (isActive) {
@@ -54,7 +65,7 @@ export function UserForm({ userId }: UserFormProps) {
       }
     }
 
-    void loadUser()
+    void loadFormData()
     return () => {
       isActive = false
     }
@@ -101,6 +112,20 @@ export function UserForm({ userId }: UserFormProps) {
         <p className="mt-5 text-sm text-muted-foreground">Memuat user...</p>
       ) : userId && !user ? null : (
         <form onSubmit={handleSubmit} className="mt-5 grid gap-4 rounded-md border p-4 sm:grid-cols-2">
+          {!userId && (
+            <div className="grid gap-1.5">
+              <label htmlFor="accountCode" className="text-sm font-medium">Nomor akun otomatis</label>
+              <Input
+                id="accountCode"
+                value={nextAccountCodes[role] ?? ""}
+                readOnly
+                aria-describedby="accountCode-help"
+              />
+              <p id="accountCode-help" className="text-xs text-muted-foreground">
+                Nomor akun dibuat otomatis berdasarkan role saat user disimpan.
+              </p>
+            </div>
+          )}
           <div className="grid gap-1.5">
             <label htmlFor="fullname" className="text-sm font-medium">Nama lengkap</label>
             <Input id="fullname" value={fullname} onChange={(event) => setFullname(event.target.value)} required maxLength={191} />
