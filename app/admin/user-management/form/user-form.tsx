@@ -21,7 +21,7 @@ type UserFormProps = {
 export function UserForm({ userId }: UserFormProps) {
   const router = useRouter()
   const [user, setUser] = useState<UserFormUser | null>(null)
-  const [nextAccountCodes, setNextAccountCodes] = useState<Record<string, string>>({})
+  const [accountCodes, setAccountCodes] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState("")
@@ -45,16 +45,21 @@ export function UserForm({ userId }: UserFormProps) {
         }
 
         if (userId && isActive) {
+          const codes = result.accountCodes
+          if (!codes || typeof codes.admin !== "string" || typeof codes.staff !== "string") {
+            throw new Error("Gagal memuat nomor akun otomatis.")
+          }
           setUser(result.user)
           setFullname(result.user.fullname)
           setEmail(result.user.email)
           setRole(result.user.role)
+          setAccountCodes(codes)
         } else if (!userId && isActive) {
           const codes = result.nextAccountCodes
           if (!codes || typeof codes.admin !== "string" || typeof codes.staff !== "string") {
             throw new Error("Gagal memuat nomor akun otomatis.")
           }
-          setNextAccountCodes(codes)
+          setAccountCodes(codes)
         }
       } catch (loadError) {
         if (isActive) {
@@ -112,20 +117,18 @@ export function UserForm({ userId }: UserFormProps) {
         <p className="mt-5 text-sm text-muted-foreground">Memuat user...</p>
       ) : userId && !user ? null : (
         <form onSubmit={handleSubmit} className="mt-5 grid gap-4 rounded-md border p-4 sm:grid-cols-2">
-          {!userId && (
-            <div className="grid gap-1.5">
-              <label htmlFor="accountCode" className="text-sm font-medium">Nomor akun otomatis</label>
-              <Input
-                id="accountCode"
-                value={nextAccountCodes[role] ?? ""}
-                readOnly
-                aria-describedby="accountCode-help"
-              />
-              <p id="accountCode-help" className="text-xs text-muted-foreground">
-                Nomor akun dibuat otomatis berdasarkan role saat user disimpan.
-              </p>
-            </div>
-          )}
+          <div className="grid gap-1.5">
+            <label htmlFor="accountCode" className="text-sm font-medium">Nomor akun otomatis</label>
+            <Input
+              id="accountCode"
+              value={accountCodes[role] ?? ""}
+              readOnly
+              aria-describedby="accountCode-help"
+            />
+            <p id="accountCode-help" className="text-xs text-muted-foreground">
+              Nomor akun ditentukan otomatis berdasarkan role saat user disimpan.
+            </p>
+          </div>
           <div className="grid gap-1.5">
             <label htmlFor="fullname" className="text-sm font-medium">Nama lengkap</label>
             <Input id="fullname" value={fullname} onChange={(event) => setFullname(event.target.value)} required maxLength={191} />

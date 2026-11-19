@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getAuthenticatedUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { hashUserPassword } from "@/lib/user-security"
+import { formatAccountCode } from "@/lib/account-code"
 
 const userFields = {
   id: true,
@@ -14,19 +15,6 @@ const userFields = {
 
 function isDuplicateEmail(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && error.code === "P2002"
-}
-
-function getRolePrefix(role: string) {
-  const normalizedRole = role.toLowerCase()
-  return normalizedRole === "admin"
-    ? "ADM"
-    : normalizedRole === "user"
-      ? "USR"
-      : normalizedRole.toUpperCase().slice(0, 3)
-}
-
-function formatAccountCode(role: string, number: number) {
-  return `${getRolePrefix(role)}${String(number).padStart(7, "0")}`
 }
 
 async function getAuthorizationError() {

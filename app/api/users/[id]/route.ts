@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { getAuthenticatedUser, setAuthCookie } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { createUserJwt, hashUserPassword } from "@/lib/user-security"
+import { getAccountCodesForUser } from "@/lib/account-code"
 
 const userFields = {
   id: true,
@@ -50,7 +51,16 @@ export async function GET(_request: Request, context: RouteContext) {
 
     if (!user) return NextResponse.json({ error: "User tidak ditemukan." }, { status: 404 })
 
-    return NextResponse.json({ user })
+    const usersById = await prisma.user.findMany({
+      where: { id: { lte: user.id } },
+      orderBy: { id: "asc" },
+      select: { id: true, role: true },
+    })
+
+    return NextResponse.json({
+      user,
+      accountCodes: getAccountCodesForUser(usersById, user.id),
+    })
   } catch (error) {
     console.error("Failed to fetch user:", error)
     return NextResponse.json({ error: "Gagal memuat data user." }, { status: 500 })
