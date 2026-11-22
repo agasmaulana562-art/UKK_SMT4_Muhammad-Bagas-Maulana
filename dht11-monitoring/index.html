@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHT11 Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div>
+        <p class="eyebrow">ESP32 SENSOR DASHBOARD</p>
+        <h1>DHT11 Monitoring</h1>
+        <p class="subtitle">Pemantauan suhu dan kelembapan secara realtime</p>
+      </div>
+      <div class="status" id="status"><span class="dot"></span> Menghubungkan...</div>
+    </header>
+
+    <section class="cards">
+      <article class="card temperature">
+        <div class="card-top"><span class="icon">🌡️</span><span class="tag">SUHU</span></div>
+        <p class="label">Temperature</p>
+        <h2 id="temperature">--<small>°C</small></h2>
+        <p class="hint">Suhu ruangan saat ini</p>
+      </article>
+      <article class="card humidity">
+        <div class="card-top"><span class="icon">💧</span><span class="tag">KELEMBAPAN</span></div>
+        <p class="label">Humidity</p>
+        <h2 id="humidity">--<small>%</small></h2>
+        <p class="hint">Kelembapan ruangan saat ini</p>
+      </article>
+    </section>
+
+    <section class="chart-card">
+      <div class="section-heading">
+        <div><p class="eyebrow">RIWAYAT SENSOR</p><h2>Grafik Monitoring</h2></div>
+        <span class="live"><span class="dot"></span> LIVE</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    </section>
+
+    <footer>
+      <span>Update terakhir: <strong id="lastUpdate">Belum ada data</strong></span>
+      <span>DHT11 · ESP32</span>
+    </footer>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
