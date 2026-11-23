@@ -11,6 +11,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
+  Building2,
+  House,
   LayoutDashboard,
   UsersRound,
 } from "lucide-react";
@@ -63,6 +65,26 @@ export function AppSidebar() {
                   >
                     <UsersRound className="w-4 h-4 mr-2" />
                     <span>User Management</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<Link href="/admin/fasilitas" />}
+                    className="text-white hover:bg-blue-700 hover:text-white active:bg-blue-800"
+                  >
+                    <Building2 className="w-4 h-4 mr-2" />
+                    <span>Data Fasilitas</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    render={<Link href="/admin/type-unit" />}
+                    className="text-white hover:bg-blue-700 hover:text-white active:bg-blue-800"
+                  >
+                    <House className="w-4 h-4 mr-2" />
+                    <span>Type Unit</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 

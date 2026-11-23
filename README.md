@@ -21,6 +21,19 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Data fasilitas
+
+Pastikan database MySQL/MariaDB di `DATABASE_URL` sudah dibuat, lalu sinkronkan tabel dan isi data contoh:
+
+```bash
+npx prisma db push
+npm run db:seed
+```
+
+Seed fasilitas aman dijalankan berulang kali dan tidak menimpa data yang sudah ada.
+
+Menu **Type Unit** mengelola tipe unit per branch dan menampilkan jumlah fasilitas terpasang. Aksi **Atur Fasilitas** membuka checklist untuk tipe unit yang dipilih.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

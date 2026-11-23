@@ -35,3 +35,34 @@ model jurusan {
   created_at  DateTime @default(now())
   updated_at  DateTime
 }
+
+model Facility {
+  code                String             @id @map("kode_facility") @db.VarChar(20)
+  name                String             @map("nama_facility") @db.VarChar(191)
+  createdAt           DateTime           @default(now()) @map("create_at")
+  updatedAt           DateTime           @updatedAt @map("update_at")
+  unitTypeAssignments UnitTypeFacility[]
+
+  @@map("tbl_facility")
+}
+
+model UnitType {
+  id                  Int                @id @default(autoincrement()) @map("id_unit_type")
+  name                String             @map("nama_type_unit") @db.VarChar(191)
+  branchId            Int                @map("branch_id")
+  createdAt           DateTime           @default(now()) @map("create_at")
+  updatedAt           DateTime           @updatedAt @map("update_at")
+  facilityAssignments UnitTypeFacility[]
+
+  @@map("tbl_type_unit")
+}
+
+model UnitTypeFacility {
+  unitTypeId   Int      @map("id_unit_type")
+  facilityCode String   @map("kode_facility") @db.VarChar(20)
+  unitType     UnitType @relation(fields: [unitTypeId], references: [id], onDelete: Cascade)
+  facility     Facility @relation(fields: [facilityCode], references: [code], onDelete: Cascade)
+
+  @@id([unitTypeId, facilityCode])
+  @@map("tbl_type_unit_facility")
+}
